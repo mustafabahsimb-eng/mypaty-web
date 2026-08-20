@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyPaty - Patili Dostunun Günlüğü</title>
+<style>
+  :root {
+    --teal: #0F3D2C;
+    --teal-2: #134E37;
+    --teal-light: #1C6B4C;
+    --orange: #EF7C39;
+    --orange-light: #F7A56B;
+    --cream: #FBF6EF;
+    --cream-2: #F4E9D8;
+    --white: #FFFFFF;
+    --text-main: #1B2A22;
+    --text-muted: #67766D;
+    --border: #E7DAC5;
+    --shadow-sm: 0 2px 10px rgba(15,61,44,0.06);
+    --shadow-md: 0 10px 30px rgba(15,61,44,0.10);
+    --shadow-lg: 0 24px 60px rgba(15,61,44,0.18);
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--text-main); background: var(--cream); -webkit-font-smoothing: antialiased; }
+  a { text-decoration: none; color: inherit; }
+  .container { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+  ul { list-style: none; }
+
+  header { position: sticky; top:0; z-index: 100; background: rgba(251,246,239,0.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+  nav { display:flex; align-items:center; justify-content:space-between; padding: 18px 28px; max-width:1160px; margin:0 auto; gap: 16px; }
+  .nav-logo { display:flex; align-items:center; gap:10px; font-weight:800; font-size:21px; letter-spacing:-0.02em; flex-shrink:0; }
+  .nav-logo .badge { width:36px; height:36px; border-radius:11px; background: linear-gradient(160deg, var(--teal-2), var(--teal)); display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow-sm); }
+  .nav-logo .my { color: var(--orange); } .nav-logo .paty { color: var(--teal); }
+  .nav-links { display:flex; gap:30px; font-weight:600; font-size:14.5px; }
+  .nav-links a:hover { color: var(--orange); }
+  .nav-right { display:flex; align-items:center; gap:14px; }
+  .nav-cta { background: var(--teal); color:white; padding:11px 22px; border-radius:12px; font-weight:700; font-size:14px; box-shadow: var(--shadow-sm); white-space:nowrap; }
+  @media (max-width:900px){ .nav-links{ display:none; } }
+
+  .lang-switch { position:relative; }
+  .lang-btn { display:flex; align-items:center; gap:6px; background:white; border:1px solid var(--border); padding:9px 12px; border-radius:12px; font-weight:700; font-size:13px; cursor:pointer; }
+  .lang-menu { position:absolute; top: calc(100% + 8px); right:0; background:white; border:1px solid var(--border); border-radius:14px; box-shadow: var(--shadow-md); padding:6px; min-width:170px; display:none; z-index:200; }
+  html[dir="rtl"] .lang-menu { right:auto; left:0; }
+  .lang-menu.open { display:block; }
+  .lang-option { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:10px; font-size:13.5px; font-weight:600; cursor:pointer; }
+  .lang-option:hover { background: var(--cream-2); }
+  .lang-option.active { color: var(--orange); }
+
+  .hero { padding: 80px 28px 50px; position:relative; overflow:hidden; }
+  .hero::before { content:""; position:absolute; top:-120px; right:-160px; width:520px; height:520px; background: radial-gradient(circle, rgba(239,124,57,0.13), transparent 70%); pointer-events:none; }
+  .hero-inner { max-width:1160px; margin:0 auto; display:grid; grid-template-columns: 1.05fr 0.95fr; gap:64px; align-items:center; position:relative; }
+  @media (max-width:940px){ .hero-inner{ grid-template-columns: 1fr; } }
+  .eyebrow { display:inline-flex; align-items:center; gap:7px; background:var(--cream-2); color:var(--orange); font-weight:700; font-size:12.5px; letter-spacing:0.03em; padding:7px 16px; border-radius:24px; margin-bottom:22px; border: 1px solid rgba(239,124,57,0.25); }
+  .hero h1 { font-size:44px; line-height:1.16; font-weight:800; letter-spacing:-0.02em; margin-bottom:20px; }
+  .hero h1 .accent { color: var(--orange); }
+  .hero p.sub { font-size:17px; color:var(--text-muted); line-height:1.65; margin-bottom:32px; max-width:480px; }
+  .hero-buttons { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+  .btn-store { display:flex; align-items:center; gap:11px; background: var(--teal); color:white; padding:13px 22px; border-radius:14px; font-weight:700; font-size:14px; box-shadow: var(--shadow-md); }
+  .btn-store .store-icon { width:20px; height:20px; flex-shrink:0; }
+  .btn-store .store-text small { display:block; font-size:9.5px; font-weight:500; opacity:0.75; text-transform:uppercase; letter-spacing:0.04em; }
+  .btn-store .store-text strong { display:block; font-size:14px; }
+  .soon-tag { font-size:12.5px; color: var(--text-muted); font-weight:600; background: var(--cream-2); padding: 6px 12px; border-radius:20px; }
+
+  .phone-wrap { display:flex; justify-content:center; position:relative; }
+  .float-emoji { position:absolute; font-size:26px; background:white; border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center; box-shadow: var(--shadow-md); }
+  .float-emoji.e1 { top: 10px; left: 10px; }
+  .float-emoji.e2 { top: 90px; right: -10px; }
+  .float-emoji.e3 { bottom: 60px; left: -18px; }
+  @media (max-width:940px){ .float-emoji{ display:none; } }
+  .phone { width: 290px; background: linear-gradient(165deg, #1a5a40, var(--teal)); border-radius: 46px; padding: 14px; box-shadow: var(--shadow-lg); position:relative; }
+  .phone::before { content:""; position:absolute; top:28px; left:50%; transform:translateX(-50%); width:88px; height:22px; background:#0A2D1F; border-radius:14px; z-index:2; }
+  .phone-screen { background:var(--cream); border-radius:34px; padding:44px 16px 20px; min-height:490px; }
+  .greet { padding: 4px 4px 16px; }
+  .greet .time { font-size:12px; color:var(--text-muted); font-weight:600; }
+  .greet .hi { font-size:18px; font-weight:800; margin-top:4px; }
+  .mock-card { background:white; border-radius:16px; padding:14px 16px; margin-bottom:12px; box-shadow:0 6px 16px rgba(15,61,44,0.08); display:flex; align-items:center; gap:12px; }
+  .mock-card .dot { width:38px; height:38px; border-radius:10px; background:var(--cream-2); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .mock-card .title { font-weight:700; font-size:13.5px; }
+  .mock-card .desc { font-size:12px; color:var(--text-muted); margin-top:1px; }
+  .ai-card { background: linear-gradient(135deg, var(--teal-2), var(--teal)); color:white; border-radius:16px; padding:16px; margin-bottom:14px; }
+  .ai-card .title { font-weight:700; font-size:14px; margin-bottom:4px; }
+  .ai-card .desc { font-size:12px; opacity:0.85; margin-bottom:10px; }
+  .ai-card .cta { font-size:12.5px; font-weight:700; color: var(--orange-light); }
+  .section-label { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em; margin: 6px 0 10px; }
+
+  section { padding: 92px 0; }
+  .section-title { text-align:center; max-width:640px; margin:0 auto 54px; }
+  .section-title .eyebrow { margin: 0 auto 14px; }
+  .section-title h2 { font-size:33px; font-weight:800; letter-spacing:-0.02em; margin-bottom:14px; }
+  .section-title p { color:var(--text-muted); font-size:16px; line-height:1.6; }
+
+  .features-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:22px; }
+  @media (max-width:940px){ .features-grid{ grid-template-columns: repeat(2,1fr);} }
+  @media (max-width:640px){ .features-grid{ grid-template-columns: 1fr;} }
+  .feature-card { background:white; border-radius:20px; padding:28px 26px; box-shadow: var(--shadow-sm); border: 1px solid rgba(231,218,197,0.6); }
+  .feature-card .icon { width:46px; height:46px; border-radius:13px; background: linear-gradient(160deg, var(--cream-2), #fff); display:flex; align-items:center; justify-content:center; font-size:21px; margin-bottom:18px; border: 1px solid var(--border); }
+  .feature-card h3 { font-size:16px; font-weight:700; margin-bottom:8px; letter-spacing:-0.01em; }
+  .feature-card p { font-size:13.5px; color:var(--text-muted); line-height:1.55; margin-bottom:14px; }
+  .feature-card ul { display:flex; flex-direction:column; gap:6px; }
+  .feature-card ul li { font-size:12.5px; color: var(--teal-2); font-weight:600; display:flex; align-items:center; gap:7px; }
+  .feature-card ul li::before { content:"✓"; color: var(--orange); font-weight:800; }
+
+  .steps { display:grid; grid-template-columns: repeat(3,1fr); gap:36px; margin-bottom: 60px; }
+  @media (max-width:820px){ .steps{ grid-template-columns: 1fr; } }
+  .step .step-label { font-size:12px; font-weight:800; color: var(--orange); letter-spacing:0.05em; margin-bottom:10px; }
+  .step h3 { font-size:18px; font-weight:700; margin-bottom:8px; letter-spacing:-0.01em; }
+  .step p { font-size:14px; color:var(--text-muted); line-height:1.55; }
+
+  .stats-row { display:grid; grid-template-columns: repeat(4,1fr); gap:24px; background: linear-gradient(135deg, var(--teal-2), var(--teal)); border-radius:26px; padding:42px 24px; box-shadow: var(--shadow-md); }
+  @media (max-width:700px){ .stats-row{ grid-template-columns: repeat(2,1fr);} }
+  .stat { text-align:center; color:white; }
+  .stat .num { font-size:32px; font-weight:800; color:var(--orange-light); letter-spacing:-0.02em; }
+  .stat .label { font-size:12.5px; opacity:0.8; margin-top:6px; font-weight:500; }
+
+  .why-grid { display:grid; grid-template-columns: repeat(2,1fr); gap:20px; }
+  @media (max-width:700px){ .why-grid{ grid-template-columns:1fr; } }
+  .why-item { display:flex; gap:16px; background:white; border-radius:18px; padding:24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(231,218,197,0.6); }
+  .why-item .check { flex-shrink:0; min-width:44px; height:44px; border-radius:12px; background: var(--cream-2); border: 1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:18px; padding: 0 6px; }
+  .why-item h4 { font-size:15.5px; font-weight:700; margin-bottom:5px; letter-spacing:-0.01em; }
+  .why-item p { font-size:13px; color:var(--text-muted); line-height:1.55; }
+
+  .faq-list { max-width:760px; margin:0 auto; }
+  .faq-item { background:white; border-radius:16px; margin-bottom:12px; overflow:hidden; border: 1px solid rgba(231,218,197,0.6); }
+  .faq-q { padding:20px 24px; font-weight:700; font-size:15px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .faq-a { padding:0 24px 20px; font-size:14px; color:var(--text-muted); line-height:1.65; display:none; }
+  .faq-item.open .faq-a { display:block; }
+  .faq-item.open .faq-q .arrow { transform: rotate(180deg); }
+  .arrow { transition: transform 0.2s; color: var(--orange); font-weight:800; flex-shrink:0; }
+  .faq-contact { text-align:center; margin-top: 30px; font-size:14px; color: var(--text-muted); }
+  .faq-contact a { color: var(--orange); font-weight:700; }
+
+  .cta-section { background: linear-gradient(135deg, var(--teal-2), var(--teal)); border-radius:32px; margin:0 28px; padding:70px 40px; text-align:center; color:white; box-shadow: var(--shadow-lg); position:relative; overflow:hidden; }
+  .cta-section::after { content:""; position:absolute; bottom:-100px; left:-100px; width:320px; height:320px; background: radial-gradient(circle, rgba(239,124,57,0.18), transparent 70%); }
+  .cta-section h2 { font-size:32px; font-weight:800; margin-bottom:14px; letter-spacing:-0.02em; position:relative; }
+  .cta-section p { opacity:0.8; margin-bottom:30px; font-size:15.5px; position:relative; }
+  .cta-benefits { display:flex; justify-content:center; gap:28px; margin-top:30px; flex-wrap:wrap; font-size:13px; opacity:0.9; font-weight:600; position:relative; }
+
+  footer { padding: 64px 28px 30px; }
+  .footer-grid { max-width:1160px; margin:0 auto; display:grid; grid-template-columns: 1.4fr 1fr 1fr; gap:40px; padding-bottom:40px; border-bottom: 1px solid var(--border); }
+  @media (max-width:700px){ .footer-grid{ grid-template-columns: 1fr; gap:30px; } }
+  .footer-grid .foot-logo { font-weight:800; font-size:19px; margin-bottom:10px; }
+  .footer-grid .foot-tagline { font-size:13.5px; color:var(--text-muted); max-width:260px; }
+  .footer-col h5 { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-main); margin-bottom:16px; }
+  .footer-col ul li { margin-bottom:10px; }
+  .footer-col ul a { font-size:13.5px; color:var(--text-muted); }
+  .footer-col ul a:hover { color: var(--orange); }
+  .footer-bottom { max-width:1160px; margin: 24px auto 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:12.5px; color:#9AA79E; }
+
+  html[dir="rtl"] .feature-card ul li { flex-direction: row-reverse; justify-content: flex-end; }
+  html[dir="rtl"] .why-item { flex-direction: row-reverse; }
+  html[dir="rtl"] .mock-card { flex-direction: row-reverse; }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="nav-logo">
+      <div class="badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path fill="#EF7C39" d="M8.5 4.5c1 0 1.8 1 1.8 2.3s-.8 2.3-1.8 2.3-1.8-1-1.8-2.3.8-2.3 1.8-2.3zM15.5 4.5c1 0 1.8 1 1.8 2.3s-.8 2.3-1.8 2.3-1.8-1-1.8-2.3.8-2.3 1.8-2.3zM5 9.2c.9 0 1.6.9 1.6 2s-.7 2-1.6 2-1.6-.9-1.6-2 .7-2 1.6-2zM19 9.2c.9 0 1.6.9 1.6 2s-.7 2-1.6 2-1.6-.9-1.6-2 .7-2 1.6-2zM12 10.5c2.5 0 5 2 5 4.6 0 1.7-1.3 2.6-3 2.6-.8 0-1.3-.3-2-.3s-1.2.3-2 .3c-1.7 0-3-.9-3-2.6 0-2.6 2.5-4.6 5-4.6z"/></svg></div>
+      <span><span class="my">my</span><span class="paty">paty</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="#ozellikler" data-i18n="nav.features">Özellikler</a>
+      <a href="#nasil-calisir" data-i18n="nav.how">Nasıl Çalışır</a>
+      <a href="#neden-mypaty" data-i18n="nav.why">Neden MyPaty</a>
+      <a href="#sss" data-i18n="nav.faq">SSS</a>
+    </div>
+    <div class="nav-right">
+      <div class="lang-switch">
+        <button class="lang-btn" id="lang-btn">🌐 <span id="lang-btn-label">TR</span></button>
+        <div class="lang-menu" id="lang-menu"></div>
+      </div>
+      <a href="#indir" class="nav-cta" data-i18n="nav.cta">Uygulamayı İndir</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="eyebrow" data-i18n="hero.eyebrow">🐾 Yapay Zeka Destekli Evcil Hayvan Takibi</span>
+      <h1><span data-i18n="hero.line1">Patili Dostunuzun Günlüğü</span><br><span class="accent" data-i18n="hero.line2">Artık Cebinizde</span></h1>
+      <p class="sub" data-i18n="hero.sub">Beslenme, uyku, sağlık ve büyüme takibi, aşı hatırlatmaları, navigasyonlu veteriner bulucu ve AI destekli bakım danışmanlığı — hepsi tek bir uygulamada.</p>
+      <div class="hero-buttons">
+        <a href="#indir" class="btn-store">
+          <svg class="store-icon" viewBox="0 0 24 24" fill="white"><path d="M16.365 1.43c0 1.14-.415 2.19-1.244 3.02-.898.94-2.045 1.53-3.29 1.42-.058-1.1.44-2.24 1.29-3.06.87-.85 2.26-1.47 3.244-1.38zM20.6 17.2c-.44 1.02-.85 1.55-1.42 2.42-.79 1.19-1.9 2.68-3.29 2.69-1.24.02-1.56-.81-3.24-.8-1.68.01-2.04.82-3.28.8-1.39-.02-2.44-1.35-3.23-2.54-2.22-3.35-2.45-7.29-1.09-9.38.97-1.51 2.5-2.4 3.94-2.4 1.47 0 2.39.81 3.6.81 1.17 0 1.89-.81 3.58-.81 1.29 0 2.65.7 3.62 1.91-3.18 1.75-2.67 6.3.02 7.3z"/></svg>
+          <span class="store-text"><small data-i18n="common.download">İndir</small><strong>App Store</strong></span>
+        </a>
+        <a href="#indir" class="btn-store">
+          <svg class="store-icon" viewBox="0 0 24 24" fill="white"><path d="M3.6 2.4c-.3.3-.5.7-.5 1.2v16.8c0 .5.2.9.5 1.2l.1.1L13.3 12 3.7 2.3l-.1.1zM16.6 15.3l-3-3-9.9 9.9c.4.4.9.5 1.5.2l11.4-7.1zM3.7 21.7l9.6-9.7-9.6-9.7v19.4zM20.5 10.5l-2.9-1.7-3.3 3.2 3.3 3.2 2.9-1.7c.9-.5.9-1.5 0-2z"/></svg>
+          <span class="store-text"><small data-i18n="common.download">İndir</small><strong>Google Play</strong></span>
+        </a>
+        <span class="soon-tag" data-i18n="common.soon">Yakında</span>
+      </div>
+    </div>
+
+    <div class="phone-wrap">
+      <span class="float-emoji e1">🐕</span>
+      <span class="float-emoji e2">🐈</span>
+      <span class="float-emoji e3">🐰</span>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="greet">
+            <div class="time">9:41</div>
+            <div class="hi" data-i18n="phone.greeting">Günaydın 👋<br>Tekrar Hoş Geldin!</div>
+          </div>
+          <div class="mock-card"><div class="dot">💉</div><div><div class="title" data-i18n="phone.vaccineTitle">Aşı Tamamlandı</div><div class="desc" data-i18n="phone.vaccineDesc">Kuduz aşısı yapıldı</div></div></div>
+          <div class="mock-card"><div class="dot">📅</div><div><div class="title" data-i18n="phone.apptTitle">Veteriner Randevusu</div><div class="desc" data-i18n="phone.apptDesc">Yarın 14:00</div></div></div>
+          <div class="ai-card">
+            <div class="title" data-i18n="phone.aiTitle">💬 AI Asistan</div>
+            <div class="desc" data-i18n="phone.aiDesc">Evcil hayvanınızın sağlığı hakkında anında cevap alın</div>
+            <div class="cta" data-i18n="phone.aiCta">Sohbeti Başlat →</div>
+          </div>
+          <div class="section-label" data-i18n="phone.todayEvents">Bugünkü Etkinlikler</div>
+          <div class="mock-card"><div class="dot">🔔</div><div><div class="title" data-i18n="phone.reminderTitle">Aşı Hatırlatması</div><div class="desc" data-i18n="phone.reminderDesc">Boncuk · 14:00</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ÖZELLİKLER -->
+<section id="ozellikler">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow" data-i18n="nav.features">Özellikler</span>
+      <h2 data-i18n="features.title">Evcil Hayvan Bakımında Yeni Nesil</h2>
+      <p data-i18n="features.subtitle">MyPaty ile patili dostunuzun hayatını takip etmek hiç bu kadar kolay olmamıştı.</p>
+    </div>
+    <div class="features-grid" id="features-grid"></div>
+  </div>
+</section>
+
+<!-- NASIL ÇALIŞIR -->
+<section id="nasil-calisir" style="background:white;">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow" data-i18n="how.eyebrow">Kolay Başlangıç</span>
+      <h2 data-i18n="how.title">Nasıl Çalışır?</h2>
+      <p data-i18n="how.subtitle">Üç basit adımda patili dostunuzun sağlığını yönetmeye başlayın.</p>
+    </div>
+    <div class="steps" id="steps-grid"></div>
+    <div class="stats-row" id="stats-row"></div>
+  </div>
+</section>
+
+<!-- NEDEN MYPATY -->
+<section id="neden-mypaty">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow" data-i18n="nav.why">Neden MyPaty</span>
+      <h2 data-i18n="why.title">MyPaty'yi farklı kılan ne?</h2>
+      <p data-i18n="why.subtitle">Hangi türden olursa olsun, sahip olduğunuz her evcil dost için düşünülmüş — tek bir uygulamada hepsi bir arada, verileriniz güvende.</p>
+    </div>
+    <div class="why-grid" id="why-grid"></div>
+  </div>
+</section>
+
+<!-- SSS -->
+<section id="sss" style="background:white;">
+  <div class="container">
+    <div class="section-title">
+      <span class="eyebrow" data-i18n="faq.eyebrow">Sık Sorulan Sorular</span>
+      <h2 data-i18n="faq.title">Merak Ettikleriniz</h2>
+      <p data-i18n="faq.subtitle">Aklınıza takılan soruların cevaplarını burada bulabilirsiniz.</p>
+    </div>
+    <div class="faq-list" id="faq-list"></div>
+    <div class="faq-contact"><span data-i18n="faq.contact">Sorunuz hâlâ mı var?</span> <a href="#" data-i18n="faq.contactLink">Bize ulaşın</a></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="indir">
+  <div class="container">
+    <div class="cta-section">
+      <h2 data-i18n="cta.title">Patili Dostunuzun Sağlığı İçin Hazır mısınız?</h2>
+      <p data-i18n="cta.subtitle">MyPaty'yi çok yakında indirin ve yapay zeka destekli bakımla evcil hayvanınızın hayatını kolaylaştırın.</p>
+      <div class="hero-buttons" style="justify-content:center;">
+        <a href="#" class="btn-store" style="background:white; color:var(--teal);">
+          <svg class="store-icon" viewBox="0 0 24 24" fill="#0F3D2C"><path d="M16.365 1.43c0 1.14-.415 2.19-1.244 3.02-.898.94-2.045 1.53-3.29 1.42-.058-1.1.44-2.24 1.29-3.06.87-.85 2.26-1.47 3.244-1.38zM20.6 17.2c-.44 1.02-.85 1.55-1.42 2.42-.79 1.19-1.9 2.68-3.29 2.69-1.24.02-1.56-.81-3.24-.8-1.68.01-2.04.82-3.28.8-1.39-.02-2.44-1.35-3.23-2.54-2.22-3.35-2.45-7.29-1.09-9.38.97-1.51 2.5-2.4 3.94-2.4 1.47 0 2.39.81 3.6.81 1.17 0 1.89-.81 3.58-.81 1.29 0 2.65.7 3.62 1.91-3.18 1.75-2.67 6.3.02 7.3z"/></svg>
+          <span class="store-text"><small data-i18n="common.download">İndir</small><strong>App Store</strong></span>
+        </a>
+        <a href="#" class="btn-store" style="background:white; color:var(--teal);">
+          <svg class="store-icon" viewBox="0 0 24 24" fill="#0F3D2C"><path d="M3.6 2.4c-.3.3-.5.7-.5 1.2v16.8c0 .5.2.9.5 1.2l.1.1L13.3 12 3.7 2.3l-.1.1zM16.6 15.3l-3-3-9.9 9.9c.4.4.9.5 1.5.2l11.4-7.1zM3.7 21.7l9.6-9.7-9.6-9.7v19.4zM20.5 10.5l-2.9-1.7-3.3 3.2 3.3 3.2 2.9-1.7c.9-.5.9-1.5 0-2z"/></svg>
+          <span class="store-text"><small data-i18n="common.download">İndir</small><strong>Google Play</strong></span>
+        </a>
+      </div>
+      <div class="cta-benefits">
+        <span data-i18n="cta.benefit1">✓ Ücretsiz Kullanım</span>
+        <span data-i18n="cta.benefit2">✓ Güvenli Veriler</span>
+        <span data-i18n="cta.benefit3">✓ Akıllı Hatırlatıcılar</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="foot-logo"><span style="color:var(--orange);">my</span><span style="color:var(--teal);">paty</span></div>
+      <div class="foot-tagline" data-i18n="footer.tagline">Evcil hayvanınızın sağlığını takip etmenin en kolay yolu.</div>
+    </div>
+    <div class="footer-col">
+      <h5 data-i18n="footer.product">Ürün</h5>
+      <ul>
+        <li><a href="#ozellikler" data-i18n="nav.features">Özellikler</a></li>
+        <li><a href="#nasil-calisir" data-i18n="nav.how">Nasıl Çalışır</a></li>
+        <li><a href="#sss" data-i18n="nav.faq">SSS</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5 data-i18n="footer.legal">Yasal</h5>
+      <ul>
+        <li><a href="#" data-i18n="footer.privacy">Gizlilik Politikası</a></li>
+        <li><a href="#" data-i18n="footer.terms">Şartlar ve Koşullar</a></li>
+        <li><a href="#" data-i18n="footer.kvkk">KVKK Aydınlatma Metni</a></li>
+        <li><a href="#" data-i18n="footer.gdpr">GDPR</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div data-i18n="footer.copyright">© 2026 MyPaty. Tüm hakları saklıdır.</div>
+    <div data-i18n="footer.tagline2">Patili Dostunun Günlüğü</div>
+  </div>
+</footer>
+
+<script>
+const LANGS = [
+  { code: 'tr', label: 'TR', name: 'Türkçe', dir: 'ltr' },
+  { code: 'en', label: 'EN', name: 'English', dir: 'ltr' },
+  { code: 'ru', label: 'RU', name: 'Русский', dir: 'ltr' },
+  { code: 'fr', label: 'FR', name: 'Français', dir: 'ltr' },
+  { code: 'ar', label: 'AR', name: 'العربية', dir: 'rtl' },
+  { code: 'de', label: 'DE', name: 'Deutsch', dir: 'ltr' },
+  { code: 'fa', label: 'FA', name: 'فارسی', dir: 'rtl' },
+];
+
+const FEATURES = [
+  { icon:'🐾', key:'f1', li:3 },
+  { icon:'📋', key:'f2', li:3 },
+  { icon:'💉', key:'f3', li:3 },
+  { icon:'💬', key:'f4', li:3 },
+  { icon:'📍', key:'f5', li:3 },
+  { icon:'🆘', key:'f6', li:3 },
+  { icon:'💰', key:'f7', li:3 },
+  { icon:'📄', key:'f8', li:3 },
+  { icon:'👨‍👩‍👧', key:'f9', li:3 },
+  { icon:'🐕‍🦺', key:'f10', li:3 },
+];
+const WHY = ['w1','w2','w3','w4','w5','w6'];
+const FAQ = ['q1','q2','q3','q4','q5','q6','q7'];
+
+const T = {
+tr: {
+  'nav.features':'Özellikler','nav.how':'Nasıl Çalışır','nav.why':'Neden MyPaty','nav.faq':'SSS','nav.cta':'Uygulamayı İndir',
+  'common.download':'İndir','common.soon':'Yakında',
+  'hero.eyebrow':'🐾 Yapay Zeka Destekli Evcil Hayvan Takibi','hero.line1':'Patili Dostunuzun Günlüğü','hero.line2':'Artık Cebinizde',
+  'hero.sub':'Beslenme, uyku, sağlık ve büyüme takibi, aşı hatırlatmaları, navigasyonlu veteriner bulucu ve AI destekli bakım danışmanlığı — hepsi tek bir uygulamada.',
+  'phone.greeting':'Günaydın 👋<br>Tekrar Hoş Geldin!','phone.vaccineTitle':'Aşı Tamamlandı','phone.vaccineDesc':'Kuduz aşısı yapıldı','phone.apptTitle':'Veteriner Randevusu','phone.apptDesc':'Yarın 14:00','phone.aiTitle':'💬 AI Asistan','phone.aiDesc':'Evcil hayvanınızın sağlığı hakkında anında cevap alın','phone.aiCta':'Sohbeti Başlat →','phone.todayEvents':'Bugünkü Etkinlikler','phone.reminderTitle':'Aşı Hatırlatması','phone.reminderDesc':'Boncuk · 14:00',
+  'features.title':'Evcil Hayvan Bakımında Yeni Nesil','features.subtitle':'MyPaty ile patili dostunuzun hayatını takip etmek hiç bu kadar kolay olmamıştı.',
+  'f1.title':'Çoklu Tür Desteği','f1.desc':'Hangi türden olursa olsun, evcil dostunuz için profil oluşturun.','f1.li1':'Kedi & Köpek','f1.li2':'Kuş & Balık','f1.li3':'Kemirgen & Daha Fazlası',
+  'f2.title':'Sağlık Kayıtları','f2.desc':'Evcil hayvanınızın tüm sağlık geçmişini tek bir yerde tutun.','f2.li1':'Kilo & Büyüme Takibi','f2.li2':'Tıbbi Geçmiş','f2.li3':'Beslenme & Uyku',
+  'f3.title':'Aşı Takibi','f3.desc':'Aşı takvimini kolayca yönetin, otomatik hatırlatmalar alın.','f3.li1':'Dijital Aşı Karnesi','f3.li2':'Hatırlatıcılar','f3.li3':'Veteriner Kayıtları',
+  'f4.title':'AI Asistan','f4.desc':'Kayıtlarınıza dayalı, kişiselleştirilmiş sağlık danışmanlığı alın.','f4.li1':'AI Sohbet','f4.li2':'Çoklu Hayvan Çapraz Analiz','f4.li3':'7/24 Destek',
+  'f5.title':'Veteriner Rehberi','f5.desc':'Size en yakın veteriner kliniğine navigasyonla ulaşın.','f5.li1':'Dünya Genelinde Çalışır','f5.li2':'Yol Tarifi','f5.li3':'Acil Durum Modu',
+  'f6.title':'Kayıp Hayvan Modu','f6.desc':'QR kodlu dijital kimlik ile hızlı yardım sağlayın.','f6.li1':'Dijital Kimlik','f6.li2':'Son Görülen Konum','f6.li3':'Paylaşılabilir İlan',
+  'f7.title':'Bütçe Takibi','f7.desc':'Evcil hayvan harcamalarınızı kategori bazında izleyin.','f7.li1':'Kategori Bazlı Takip','f7.li2':'Aylık Özet','f7.li3':'Çoklu Hayvan Desteği',
+  'f8.title':'PDF Rapor Alma','f8.desc':'AI\\'ın hazırladığı özeti veterinerinizle kolayca paylaşın.','f8.li1':'Tek Dokunuşla İndirme','f8.li2':'Veterinerle Paylaşım','f8.li3':'Belge Kasası',
+  'f9.title':'Aile Paylaşımı','f9.desc':'Hayvan profillerinizi eşinizle veya ailenizle birlikte yönetin.','f9.li1':'Çoklu Kullanıcı','f9.li2':'Ortak Takvim','f9.li3':'Bildirim Paylaşımı',
+  'f10.title':'Pati Arkadaşları','f10.desc':'Yakınlarınızdaki hayvan sahipleriyle buluşun veya üreme eşleşmesi bulun.','f10.li1':'Yürüyüş/Oyun Arkadaşı','f10.li2':'Üreme Eşleşmesi','f10.li3':'Güvenli Mesajlaşma',
+  'how.eyebrow':'Kolay Başlangıç','how.title':'Nasıl Çalışır?','how.subtitle':'Üç basit adımda patili dostunuzun sağlığını yönetmeye başlayın.',
+  'step1.label':'ADIM 01','step1.title':'Uygulamayı İndirin','step1.desc':'App Store veya Google Play\\'den MyPaty\\'yi ücretsiz indirin.',
+  'step2.label':'ADIM 02','step2.title':'Profilinizi Oluşturun','step2.desc':'Birkaç saniyede hesap oluşturun ve evcil hayvanınızı ekleyin.',
+  'step3.label':'ADIM 03','step3.title':'Takibe Başlayın','step3.desc':'Beslenme, sağlık ve aşı kayıtlarını kolayca yönetmeye başlayın.',
+  'stat1.label':'Tür Desteği','stat2.label':'Özellik','stat3.label':'Dil Desteği','stat4.label':'AI Asistan',
+  'why.title':'MyPaty\\'yi farklı kılan ne?','why.subtitle':'Hangi türden olursa olsun, sahip olduğunuz her evcil dost için düşünülmüş — tek bir uygulamada hepsi bir arada, verileriniz güvende.',
+  'w1.title':'Tüm evcil dostlarınız için','w1.desc':'Kedi, köpek, kuş, balık ve daha fazlası — hangi türden olursa olsun, hepsi aynı çatı altında.',
+  'w2.title':'Verileriniz güvende','w2.desc':'Tüm kayıtlarınız şifreli saklanır, sadece sizin izin verdiğiniz kişilerle paylaşılır.',
+  'w3.title':'Çapraz hayvan AI analizi','w3.desc':'Evinizdeki tüm hayvanlar arasında örüntü kurabilen tek AI asistan.',
+  'w4.title':'Navigasyonlu veteriner erişimi','w4.desc':'Sadece konum göstermekle kalmıyor, yol tarifiyle sizi oraya götürüyor.',
+  'w5.title':'Hepsi bir arada','w5.desc':'Bütçe takibi, kayıp hayvan modu, belge kasası — ayrı ayrı uygulamalara gerek yok.',
+  'w6.title':'Veterinerinizle kolay paylaşım','w6.desc':'AI özet raporunu PDF olarak indirip anında paylaşın.',
+  'faq.eyebrow':'Sık Sorulan Sorular','faq.title':'Merak Ettikleriniz','faq.subtitle':'Aklınıza takılan soruların cevaplarını burada bulabilirsiniz.',
+  'q1.q':'MyPaty ücretsiz mi?','q1.a':'Evet! MyPaty\\'nin temel özellikleri tamamen ücretsizdir. Sağlık kayıtları, aşı takibi ve hatırlatıcılar ücretsiz olarak kullanılabilir. Çoklu hayvan ve gelişmiş AI özellikleri için abonelik planlanıyor.',
+  'q2.q':'Kaç evcil hayvan ekleyebilirim?','q2.a':'Birden fazla evcil hayvan profili oluşturabilirsiniz. Her biri için ayrı sağlık kayıtları tutabilirsiniz.',
+  'q3.q':'AI Asistan nedir?','q3.a':'AI Asistan, kayıtlarınıza dayalı yapay zeka destekli sağlık danışmanlığı özelliğidir. Not: AI Asistan gerçek bir veteriner muayenesinin yerini alamaz, yalnızca bilgilendirme amaçlıdır.',
+  'q4.q':'Verilerim güvende mi?','q4.a':'Kesinlikle! Tüm verileriniz şifreli olarak saklanır ve hiçbir şekilde üçüncü taraflarla paylaşılmaz.',
+  'q5.q':'Hangi cihazlarda kullanabilirim?','q5.a':'MyPaty, iOS ve Android cihazlarda kullanılabilecek. App Store ve Google Play\\'den indirebileceksiniz.',
+  'q6.q':'Pati Arkadaşları özelliği güvenli mi?','q6.a':'Profiliniz sadece siz görünür yaptığınızda paylaşılır, kesin konumunuz asla gösterilmez — sadece yaklaşık bölge. Karşılıklı ilgi olmadan mesajlaşma açılmaz ve her an bildir/engelle seçeneğiniz vardır.',
+  'q7.q':'Ne zaman yayında olacak?','q7.a':'MyPaty şu anda geliştirme aşamasında, yakında App Store ve Google Play\\'de olacak.',
+  'faq.contact':'Sorunuz hâlâ mı var?','faq.contactLink':'Bize ulaşın',
+  'cta.title':'Patili Dostunuzun Sağlığı İçin Hazır mısınız?','cta.subtitle':'MyPaty\\'yi çok yakında indirin ve yapay zeka destekli bakımla evcil hayvanınızın hayatını kolaylaştırın.',
+  'cta.benefit1':'✓ Ücretsiz Kullanım','cta.benefit2':'✓ Güvenli Veriler','cta.benefit3':'✓ Akıllı Hatırlatıcılar',
+  'footer.tagline':'Evcil hayvanınızın sağlığını takip etmenin en kolay yolu.','footer.product':'Ürün','footer.legal':'Yasal','footer.privacy':'Gizlilik Politikası','footer.terms':'Şartlar ve Koşullar','footer.kvkk':'KVKK Aydınlatma Metni','footer.gdpr':'GDPR','footer.copyright':'© 2026 MyPaty. Tüm hakları saklıdır.','footer.tagline2':'Patili Dostunun Günlüğü'
+},
+en: {
+  'nav.features':'Features','nav.how':'How It Works','nav.why':'Why MyPaty','nav.faq':'FAQ','nav.cta':'Download the App',
+  'common.download':'Download','common.soon':'Coming Soon',
+  'hero.eyebrow':'🐾 AI-Powered Pet Care Tracking','hero.line1':'Your Pet\\'s Whole Diary','hero.line2':'Now In Your Pocket',
+  'hero.sub':'Feeding, sleep, health and growth tracking, vaccine reminders, a navigation-enabled vet finder, and AI-powered care advice — all in one app.',
+  'phone.greeting':'Good Morning 👋<br>Welcome Back!','phone.vaccineTitle':'Vaccine Completed','phone.vaccineDesc':'Rabies vaccine given','phone.apptTitle':'Vet Appointment','phone.apptDesc':'Tomorrow 2:00 PM','phone.aiTitle':'💬 AI Assistant','phone.aiDesc':'Get instant answers about your pet\\'s health','phone.aiCta':'Start Chat →','phone.todayEvents':'Today\\'s Events','phone.reminderTitle':'Vaccine Reminder','phone.reminderDesc':'Boncuk · 2:00 PM',
+  'features.title':'Next-Gen Pet Care','features.subtitle':'Tracking your furry friend\\'s life has never been this easy with MyPaty.',
+  'f1.title':'Multi-Species Support','f1.desc':'Create a profile for your pet, whatever species they are.','f1.li1':'Cats & Dogs','f1.li2':'Birds & Fish','f1.li3':'Rodents & More',
+  'f2.title':'Health Records','f2.desc':'Keep your pet\\'s entire medical history in one place.','f2.li1':'Weight & Growth Tracking','f2.li2':'Medical History','f2.li3':'Feeding & Sleep',
+  'f3.title':'Vaccine Tracking','f3.desc':'Manage the vaccine schedule easily with automatic reminders.','f3.li1':'Digital Vaccine Book','f3.li2':'Reminders','f3.li3':'Vet Records',
+  'f4.title':'AI Assistant','f4.desc':'Get personalized health guidance based on your own records.','f4.li1':'AI Chat','f4.li2':'Cross-Pet Analysis','f4.li3':'24/7 Support',
+  'f5.title':'Vet Directory','f5.desc':'Reach the nearest vet clinic with turn-by-turn navigation.','f5.li1':'Works Worldwide','f5.li2':'Directions','f5.li3':'Emergency Mode',
+  'f6.title':'Lost Pet Mode','f6.desc':'Get quick help with a QR-coded digital ID.','f6.li1':'Digital ID','f6.li2':'Last Seen Location','f6.li3':'Shareable Flyer',
+  'f7.title':'Budget Tracking','f7.desc':'Track your pet expenses by category.','f7.li1':'Category Tracking','f7.li2':'Monthly Summary','f7.li3':'Multi-Pet Support',
+  'f8.title':'PDF Reports','f8.desc':'Easily share the AI-generated summary with your vet.','f8.li1':'One-Tap Download','f8.li2':'Share with Vet','f8.li3':'Document Vault',
+  'f9.title':'Family Sharing','f9.desc':'Manage your pet profiles together with your spouse or family.','f9.li1':'Multiple Users','f9.li2':'Shared Calendar','f9.li3':'Shared Notifications',
+  'f10.title':'Paw Buddies','f10.desc':'Meet nearby pet owners or find a breeding match.','f10.li1':'Walk/Play Buddy','f10.li2':'Breeding Match','f10.li3':'Safe Messaging',
+  'how.eyebrow':'Easy Start','how.title':'How It Works?','how.subtitle':'Start managing your pet\\'s health in three simple steps.',
+  'step1.label':'STEP 01','step1.title':'Download the App','step1.desc':'Download MyPaty for free from the App Store or Google Play.',
+  'step2.label':'STEP 02','step2.title':'Create Your Profile','step2.desc':'Set up your account and add your pet in seconds.',
+  'step3.label':'STEP 03','step3.title':'Start Tracking','step3.desc':'Start managing feeding, health and vaccine records easily.',
+  'stat1.label':'Species Supported','stat2.label':'Features','stat3.label':'Languages','stat4.label':'AI Assistant',
+  'why.title':'What sets MyPaty apart?','why.subtitle':'Built for every pet you have, whatever the species — all in one app, with your data kept safe.',
+  'w1.title':'For all your pets','w1.desc':'Cats, dogs, birds, fish and more — whatever the species, all under one roof.',
+  'w2.title':'Your data stays safe','w2.desc':'All your records are stored encrypted and shared only with people you allow.',
+  'w3.title':'Cross-pet AI analysis','w3.desc':'The only AI assistant that can spot patterns across all pets in your home.',
+  'w4.title':'Navigation-enabled vet access','w4.desc':'Not just a pin on a map — it actually guides you there with directions.',
+  'w5.title':'Everything in one place','w5.desc':'Budget tracking, lost pet mode, document vault — no need for separate apps.',
+  'w6.title':'Easy sharing with your vet','w6.desc':'Download the AI summary report as a PDF and share it instantly.',
+  'faq.eyebrow':'FAQ','faq.title':'Frequently Asked Questions','faq.subtitle':'Find answers to what\\'s on your mind here.',
+  'q1.q':'Is MyPaty free?','q1.a':'Yes! MyPaty\\'s core features are completely free. Health records, vaccine tracking and reminders are available at no cost. A subscription is planned for multi-pet and advanced AI features.',
+  'q2.q':'How many pets can I add?','q2.a':'You can create multiple pet profiles and keep separate health records for each one.',
+  'q3.q':'What is the AI Assistant?','q3.a':'The AI Assistant is an AI-powered health guidance feature based on your own records. Note: it cannot replace a real veterinary examination and is for informational purposes only.',
+  'q4.q':'Is my data safe?','q4.a':'Absolutely! All your data is stored encrypted and is never shared with third parties.',
+  'q5.q':'Which devices can I use it on?','q5.a':'MyPaty will be available on iOS and Android, downloadable from the App Store and Google Play.',
+  'q6.q':'Is the Paw Buddies feature safe?','q6.a':'Your profile is only shared once you make it visible, and your exact location is never shown — only an approximate area. Messaging only opens after mutual interest, and a report/block option is always available.',
+  'q7.q':'When will it launch?','q7.a':'MyPaty is currently in development and will be on the App Store and Google Play soon.',
+  'faq.contact':'Still have a question?','faq.contactLink':'Contact us',
+  'cta.title':'Ready for Your Pet\\'s Health?','cta.subtitle':'Download MyPaty soon and make caring for your pet easier with AI-powered support.',
+  'cta.benefit1':'✓ Free to Use','cta.benefit2':'✓ Secure Data','cta.benefit3':'✓ Smart Reminders',
+  'footer.tagline':'The easiest way to track your pet\\'s health.','footer.product':'Product','footer.legal':'Legal','footer.privacy':'Privacy Policy','footer.terms':'Terms & Conditions','footer.kvkk':'Data Protection Notice','footer.gdpr':'GDPR','footer.copyright':'© 2026 MyPaty. All rights reserved.','footer.tagline2':'Your Pet\\'s Diary'
+},
+ru: {
+  'nav.features':'Возможности','nav.how':'Как это работает','nav.why':'Почему MyPaty','nav.faq':'Вопросы','nav.cta':'Скачать приложение',
+  'common.download':'Скачать','common.soon':'Скоро',
+  'hero.eyebrow':'🐾 Уход за питомцем на базе ИИ','hero.line1':'Дневник вашего питомца','hero.line2':'теперь у вас в кармане',
+  'hero.sub':'Учёт питания, сна, здоровья и роста, напоминания о прививках, навигация до ближайшего ветеринара и советы по уходу от ИИ — всё в одном приложении.',
+  'phone.greeting':'Доброе утро 👋<br>С возвращением!','phone.vaccineTitle':'Прививка сделана','phone.vaccineDesc':'Сделана прививка от бешенства','phone.apptTitle':'Запись к ветеринару','phone.apptDesc':'Завтра в 14:00','phone.aiTitle':'💬 ИИ-ассистент','phone.aiDesc':'Мгновенные ответы о здоровье вашего питомца','phone.aiCta':'Начать чат →','phone.todayEvents':'События сегодня','phone.reminderTitle':'Напоминание о прививке','phone.reminderDesc':'Бончук · 14:00',
+  'features.title':'Новое поколение ухода за питомцами','features.subtitle':'С MyPaty следить за жизнью питомца ещё никогда не было так просто.',
+  'f1.title':'Поддержка разных видов','f1.desc':'Создайте профиль для любого питомца, независимо от вида.','f1.li1':'Кошки и собаки','f1.li2':'Птицы и рыбы','f1.li3':'Грызуны и другие',
+  'f2.title':'Медицинская карта','f2.desc':'Вся история здоровья питомца в одном месте.','f2.li1':'Вес и рост','f2.li2':'История болезней','f2.li3':'Питание и сон',
+  'f3.title':'Учёт прививок','f3.desc':'Легко управляйте графиком прививок с автонапоминаниями.','f3.li1':'Цифровой паспорт','f3.li2':'Напоминания','f3.li3':'Записи ветеринара',
+  'f4.title':'ИИ-ассистент','f4.desc':'Персональные советы на основе ваших собственных записей.','f4.li1':'Чат с ИИ','f4.li2':'Анализ по всем питомцам','f4.li3':'Поддержка 24/7',
+  'f5.title':'Справочник ветеринаров','f5.desc':'Доберитесь до ближайшей клиники с пошаговой навигацией.','f5.li1':'Работает по всему миру','f5.li2':'Маршрут','f5.li3':'Экстренный режим',
+  'f6.title':'Режим "Питомец потерялся"','f6.desc':'Быстрая помощь благодаря цифровому ID с QR-кодом.','f6.li1':'Цифровой ID','f6.li2':'Последнее местоположение','f6.li3':'Объявление для распространения',
+  'f7.title':'Учёт расходов','f7.desc':'Отслеживайте траты на питомца по категориям.','f7.li1':'По категориям','f7.li2':'Месячный итог','f7.li3':'Несколько питомцев',
+  'f8.title':'PDF-отчёты','f8.desc':'Легко делитесь отчётом от ИИ с вашим ветеринаром.','f8.li1':'Скачать в один клик','f8.li2':'Поделиться с врачом','f8.li3':'Хранилище документов',
+  'f9.title':'Семейный доступ','f9.desc':'Управляйте профилями питомцев вместе с семьёй.','f9.li1':'Несколько пользователей','f9.li2':'Общий календарь','f9.li3':'Общие уведомления',
+  'f10.title':'Друзья с лапками','f10.desc':'Знакомьтесь с владельцами питомцев рядом или найдите пару для вязки.','f10.li1':'Компаньон для прогулок','f10.li2':'Пара для вязки','f10.li3':'Безопасные сообщения',
+  'how.eyebrow':'Лёгкий старт','how.title':'Как это работает?','how.subtitle':'Начните заботиться о здоровье питомца за три простых шага.',
+  'step1.label':'ШАГ 01','step1.title':'Скачайте приложение','step1.desc':'Скачайте MyPaty бесплатно в App Store или Google Play.',
+  'step2.label':'ШАГ 02','step2.title':'Создайте профиль','step2.desc':'Заведите аккаунт и добавьте питомца за пару секунд.',
+  'step3.label':'ШАГ 03','step3.title':'Начните учёт','step3.desc':'Легко ведите записи о питании, здоровье и прививках.',
+  'stat1.label':'Видов животных','stat2.label':'Функций','stat3.label':'Языков','stat4.label':'ИИ-ассистент',
+  'why.title':'Чем отличается MyPaty?','why.subtitle':'Создано для любого вашего питомца, независимо от вида — всё в одном приложении, а данные под защитой.',
+  'w1.title':'Для всех ваших питомцев','w1.desc':'Кошки, собаки, птицы, рыбы и другие — независимо от вида, все под одной крышей.',
+  'w2.title':'Ваши данные под защитой','w2.desc':'Все записи хранятся в зашифрованном виде и передаются только тем, кому вы разрешили.',
+  'w3.title':'Анализ по всем питомцам','w3.desc':'Единственный ИИ-ассистент, способный находить закономерности между всеми питомцами в доме.',
+  'w4.title':'Навигация до ветеринара','w4.desc':'Не просто точка на карте — приложение реально доведёт вас туда по маршруту.',
+  'w5.title':'Всё в одном месте','w5.desc':'Учёт расходов, режим "питомец потерялся", хранилище документов — отдельные приложения не нужны.',
+  'w6.title':'Просто поделиться с ветеринаром','w6.desc':'Скачайте отчёт от ИИ в формате PDF и поделитесь им мгновенно.',
+  'faq.eyebrow':'Вопросы и ответы','faq.title':'Часто задаваемые вопросы','faq.subtitle':'Здесь вы найдёте ответы на популярные вопросы.',
+  'q1.q':'MyPaty бесплатное?','q1.a':'Да! Основные функции MyPaty полностью бесплатны. Медкарта, учёт прививок и напоминания доступны бесплатно. Для нескольких питомцев и продвинутого ИИ планируется подписка.',
+  'q2.q':'Сколько питомцев можно добавить?','q2.a':'Вы можете создать несколько профилей питомцев и вести отдельную медкарту для каждого.',
+  'q3.q':'Что такое ИИ-ассистент?','q3.a':'ИИ-ассистент — это функция консультаций на основе ваших записей. Обратите внимание: он не заменяет реальный осмотр у ветеринара и предназначен только для информирования.',
+  'q4.q':'Мои данные в безопасности?','q4.a':'Конечно! Все ваши данные хранятся в зашифрованном виде и никогда не передаются третьим лицам.',
+  'q5.q':'На каких устройствах можно пользоваться?','q5.a':'MyPaty будет доступен на iOS и Android — скачать можно в App Store и Google Play.',
+  'q6.q':'Безопасна ли функция "Друзья с лапками"?','q6.a':'Ваш профиль виден другим, только если вы сами сделали его видимым, точное местоположение никогда не показывается — только приблизительный район. Переписка открывается только при взаимном интересе, а функция жалобы/блокировки доступна всегда.',
+  'q7.q':'Когда выйдет приложение?','q7.a':'MyPaty сейчас находится в разработке и скоро появится в App Store и Google Play.',
+  'faq.contact':'Остались вопросы?','faq.contactLink':'Свяжитесь с нами',
+  'cta.title':'Готовы позаботиться о здоровье питомца?','cta.subtitle':'Скачайте MyPaty совсем скоро и упростите уход за питомцем с помощью ИИ.',
+  'cta.benefit1':'✓ Бесплатно','cta.benefit2':'✓ Безопасные данные','cta.benefit3':'✓ Умные напоминания',
+  'footer.tagline':'Самый простой способ следить за здоровьем питомца.','footer.product':'Продукт','footer.legal':'Правовая информация','footer.privacy':'Политика конфиденциальности','footer.terms':'Условия использования','footer.kvkk':'Уведомление о защите данных','footer.gdpr':'GDPR','footer.copyright':'© 2026 MyPaty. Все права защищены.','footer.tagline2':'Дневник вашего питомца'
+},
+fr: {
+  'nav.features':'Fonctionnalités','nav.how':'Comment ça marche','nav.why':'Pourquoi MyPaty','nav.faq':'FAQ','nav.cta':'Télécharger l\\'app',
+  'common.download':'Télécharger','common.soon':'Bientôt',
+  'hero.eyebrow':'🐾 Suivi de compagnon propulsé par l\\'IA','hero.line1':'Le journal de votre compagnon','hero.line2':'désormais dans votre poche',
+  'hero.sub':'Suivi de l\\'alimentation, du sommeil, de la santé et de la croissance, rappels de vaccins, recherche de vétérinaire avec navigation et conseils IA — le tout dans une seule application.',
+  'phone.greeting':'Bonjour 👋<br>Content de vous revoir !','phone.vaccineTitle':'Vaccin effectué','phone.vaccineDesc':'Vaccin antirabique administré','phone.apptTitle':'Rendez-vous vétérinaire','phone.apptDesc':'Demain à 14h00','phone.aiTitle':'💬 Assistant IA','phone.aiDesc':'Obtenez des réponses instantanées sur la santé de votre animal','phone.aiCta':'Démarrer le chat →','phone.todayEvents':'Événements du jour','phone.reminderTitle':'Rappel de vaccin','phone.reminderDesc':'Boncuk · 14h00',
+  'features.title':'La nouvelle génération du soin animalier','features.subtitle':'Avec MyPaty, suivre la vie de votre compagnon n\\'a jamais été aussi simple.',
+  'f1.title':'Multi-espèces','f1.desc':'Créez un profil pour votre animal, quelle que soit son espèce.','f1.li1':'Chats & Chiens','f1.li2':'Oiseaux & Poissons','f1.li3':'Rongeurs & plus',
+  'f2.title':'Dossier de santé','f2.desc':'Conservez tout l\\'historique médical de votre animal au même endroit.','f2.li1':'Suivi du poids','f2.li2':'Historique médical','f2.li3':'Alimentation & sommeil',
+  'f3.title':'Suivi des vaccins','f3.desc':'Gérez facilement le calendrier vaccinal avec des rappels automatiques.','f3.li1':'Carnet de vaccination numérique','f3.li2':'Rappels','f3.li3':'Dossiers vétérinaires',
+  'f4.title':'Assistant IA','f4.desc':'Recevez des conseils santé personnalisés basés sur vos propres données.','f4.li1':'Chat IA','f4.li2':'Analyse croisée entre animaux','f4.li3':'Support 24/7',
+  'f5.title':'Annuaire vétérinaire','f5.desc':'Accédez à la clinique la plus proche avec un itinéraire guidé.','f5.li1':'Disponible dans le monde entier','f5.li2':'Itinéraire','f5.li3':'Mode urgence',
+  'f6.title':'Mode animal perdu','f6.desc':'Obtenez de l\\'aide rapidement grâce à une identité numérique avec QR code.','f6.li1':'Identité numérique','f6.li2':'Dernier lieu vu','f6.li3':'Avis partageable',
+  'f7.title':'Suivi du budget','f7.desc':'Suivez vos dépenses animalières par catégorie.','f7.li1':'Suivi par catégorie','f7.li2':'Résumé mensuel','f7.li3':'Plusieurs animaux',
+  'f8.title':'Export PDF','f8.desc':'Partagez facilement le résumé généré par l\\'IA avec votre vétérinaire.','f8.li1':'Téléchargement en un clic','f8.li2':'Partage avec le vétérinaire','f8.li3':'Coffre de documents',
+  'f9.title':'Partage familial','f9.desc':'Gérez les profils de vos animaux avec votre conjoint ou votre famille.','f9.li1':'Plusieurs utilisateurs','f9.li2':'Calendrier partagé','f9.li3':'Notifications partagées',
+  'f10.title':'Amis à quatre pattes','f10.desc':'Rencontrez des propriétaires d\\'animaux à proximité ou trouvez un partenaire de reproduction.','f10.li1':'Compagnon de balade','f10.li2':'Reproduction','f10.li3':'Messagerie sécurisée',
+  'how.eyebrow':'Démarrage facile','how.title':'Comment ça marche ?','how.subtitle':'Commencez à gérer la santé de votre animal en trois étapes simples.',
+  'step1.label':'ÉTAPE 01','step1.title':'Téléchargez l\\'application','step1.desc':'Téléchargez MyPaty gratuitement sur l\\'App Store ou Google Play.',
+  'step2.label':'ÉTAPE 02','step2.title':'Créez votre profil','step2.desc':'Créez un compte et ajoutez votre animal en quelques secondes.',
+  'step3.label':'ÉTAPE 03','step3.title':'Commencez le suivi','step3.desc':'Gérez facilement l\\'alimentation, la santé et les vaccins.',
+  'stat1.label':'Espèces prises en charge','stat2.label':'Fonctionnalités','stat3.label':'Langues','stat4.label':'Assistant IA',
+  'why.title':'Qu\\'est-ce qui distingue MyPaty ?','why.subtitle':'Pensé pour chaque compagnon que vous avez, quelle que soit son espèce — tout dans une seule app, avec vos données en sécurité.',
+  'w1.title':'Pour tous vos compagnons','w1.desc':'Chats, chiens, oiseaux, poissons et plus — quelle que soit l\\'espèce, tous réunis au même endroit.',
+  'w2.title':'Vos données en sécurité','w2.desc':'Toutes vos données sont chiffrées et partagées uniquement avec les personnes que vous autorisez.',
+  'w3.title':'Analyse IA croisée','w3.desc':'Le seul assistant IA capable de repérer des schémas entre tous les animaux de votre foyer.',
+  'w4.title':'Accès vétérinaire avec navigation','w4.desc':'Pas seulement une localisation — l\\'app vous y conduit réellement avec un itinéraire.',
+  'w5.title':'Tout au même endroit','w5.desc':'Suivi du budget, mode animal perdu, coffre de documents — plus besoin d\\'applications séparées.',
+  'w6.title':'Partage facile avec le vétérinaire','w6.desc':'Téléchargez le résumé généré par l\\'IA en PDF et partagez-le instantanément.',
+  'faq.eyebrow':'FAQ','faq.title':'Questions fréquentes','faq.subtitle':'Retrouvez ici les réponses à vos questions.',
+  'q1.q':'MyPaty est-il gratuit ?','q1.a':'Oui ! Les fonctionnalités essentielles de MyPaty sont entièrement gratuites. Les dossiers de santé, le suivi des vaccins et les rappels sont disponibles gratuitement. Un abonnement est prévu pour plusieurs animaux et les fonctionnalités IA avancées.',
+  'q2.q':'Combien d\\'animaux puis-je ajouter ?','q2.a':'Vous pouvez créer plusieurs profils d\\'animaux et conserver un dossier de santé distinct pour chacun.',
+  'q3.q':'Qu\\'est-ce que l\\'Assistant IA ?','q3.a':'L\\'Assistant IA est une fonctionnalité de conseil santé basée sur vos propres données. Remarque : il ne remplace pas un véritable examen vétérinaire et est fourni à titre informatif uniquement.',
+  'q4.q':'Mes données sont-elles en sécurité ?','q4.a':'Absolument ! Toutes vos données sont stockées de manière chiffrée et ne sont jamais partagées avec des tiers.',
+  'q5.q':'Sur quels appareils puis-je l\\'utiliser ?','q5.a':'MyPaty sera disponible sur iOS et Android, téléchargeable sur l\\'App Store et Google Play.',
+  'q6.q':'La fonctionnalité Amis à quatre pattes est-elle sûre ?','q6.a':'Votre profil n\\'est partagé que si vous le rendez visible, et votre localisation exacte n\\'est jamais affichée — seulement une zone approximative. La messagerie ne s\\'ouvre qu\\'en cas d\\'intérêt mutuel, et une option de signalement/blocage est toujours disponible.',
+  'q7.q':'Quand sera-t-elle disponible ?','q7.a':'MyPaty est actuellement en développement et sera bientôt disponible sur l\\'App Store et Google Play.',
+  'faq.contact':'Une autre question ?','faq.contactLink':'Contactez-nous',
+  'cta.title':'Prêt pour la santé de votre compagnon ?','cta.subtitle':'Téléchargez MyPaty très bientôt et simplifiez le soin de votre animal grâce à l\\'IA.',
+  'cta.benefit1':'✓ Utilisation gratuite','cta.benefit2':'✓ Données sécurisées','cta.benefit3':'✓ Rappels intelligents',
+  'footer.tagline':'Le moyen le plus simple de suivre la santé de votre animal.','footer.product':'Produit','footer.legal':'Mentions légales','footer.privacy':'Politique de confidentialité','footer.terms':'Conditions d\\'utilisation','footer.kvkk':'Avis de protection des données','footer.gdpr':'RGPD','footer.copyright':'© 2026 MyPaty. Tous droits réservés.','footer.tagline2':'Le journal de votre compagnon'
+},
+de: {
+  'nav.features':'Funktionen','nav.how':'So funktioniert\\'s','nav.why':'Warum MyPaty','nav.faq':'FAQ','nav.cta':'App herunterladen',
+  'common.download':'Herunterladen','common.soon':'Bald verfügbar',
+  'hero.eyebrow':'🐾 KI-gestützte Haustierbetreuung','hero.line1':'Das Tagebuch Ihres Haustiers','hero.line2':'jetzt in Ihrer Tasche',
+  'hero.sub':'Fütterung, Schlaf, Gesundheit und Wachstum im Blick, Impferinnerungen, ein Tierarztfinder mit Navigation und KI-gestützte Pflegeberatung — alles in einer App.',
+  'phone.greeting':'Guten Morgen 👋<br>Willkommen zurück!','phone.vaccineTitle':'Impfung abgeschlossen','phone.vaccineDesc':'Tollwutimpfung durchgeführt','phone.apptTitle':'Tierarzttermin','phone.apptDesc':'Morgen um 14:00 Uhr','phone.aiTitle':'💬 KI-Assistent','phone.aiDesc':'Sofortige Antworten zur Gesundheit Ihres Haustiers','phone.aiCta':'Chat starten →','phone.todayEvents':'Heutige Termine','phone.reminderTitle':'Impferinnerung','phone.reminderDesc':'Boncuk · 14:00 Uhr',
+  'features.title':'Die neue Generation der Haustierpflege','features.subtitle':'Mit MyPaty war die Verfolgung des Lebens Ihres Vierbeiners noch nie so einfach.',
+  'f1.title':'Unterstützung für viele Tierarten','f1.desc':'Erstellen Sie ein Profil für Ihr Haustier, unabhängig von der Art.','f1.li1':'Katzen & Hunde','f1.li2':'Vögel & Fische','f1.li3':'Nagetiere & mehr',
+  'f2.title':'Gesundheitsakte','f2.desc':'Die gesamte Krankengeschichte Ihres Haustiers an einem Ort.','f2.li1':'Gewichts- & Wachstumsverfolgung','f2.li2':'Krankengeschichte','f2.li3':'Fütterung & Schlaf',
+  'f3.title':'Impfverfolgung','f3.desc':'Verwalten Sie den Impfplan einfach mit automatischen Erinnerungen.','f3.li1':'Digitaler Impfpass','f3.li2':'Erinnerungen','f3.li3':'Tierarztunterlagen',
+  'f4.title':'KI-Assistent','f4.desc':'Erhalten Sie personalisierte Gesundheitsberatung basierend auf Ihren eigenen Daten.','f4.li1':'KI-Chat','f4.li2':'Tierübergreifende Analyse','f4.li3':'24/7-Support',
+  'f5.title':'Tierarztverzeichnis','f5.desc':'Erreichen Sie die nächste Tierklinik mit Wegbeschreibung.','f5.li1':'Weltweit verfügbar','f5.li2':'Wegbeschreibung','f5.li3':'Notfallmodus',
+  'f6.title':'Vermisst-Modus','f6.desc':'Schnelle Hilfe mit digitaler Identität per QR-Code.','f6.li1':'Digitale Identität','f6.li2':'Zuletzt gesehener Ort','f6.li3':'Teilbare Vermisstenanzeige',
+  'f7.title':'Budgetverfolgung','f7.desc':'Verfolgen Sie Ihre Haustierausgaben nach Kategorie.','f7.li1':'Kategorieübersicht','f7.li2':'Monatsübersicht','f7.li3':'Mehrere Haustiere',
+  'f8.title':'PDF-Berichte','f8.desc':'Teilen Sie die von der KI erstellte Zusammenfassung einfach mit Ihrem Tierarzt.','f8.li1':'Download mit einem Klick','f8.li2':'Teilen mit Tierarzt','f8.li3':'Dokumententresor',
+  'f9.title':'Familienfreigabe','f9.desc':'Verwalten Sie Haustierprofile gemeinsam mit Partner oder Familie.','f9.li1':'Mehrere Nutzer','f9.li2':'Gemeinsamer Kalender','f9.li3':'Gemeinsame Benachrichtigungen',
+  'f10.title':'Pfoten-Freunde','f10.desc':'Treffen Sie Haustierbesitzer in der Nähe oder finden Sie einen Zuchtpartner.','f10.li1':'Spaziergangspartner','f10.li2':'Zuchtpartner','f10.li3':'Sichere Nachrichten',
+  'how.eyebrow':'Einfacher Start','how.title':'So funktioniert\\'s','how.subtitle':'Beginnen Sie in drei einfachen Schritten mit der Verwaltung der Gesundheit Ihres Haustiers.',
+  'step1.label':'SCHRITT 01','step1.title':'App herunterladen','step1.desc':'Laden Sie MyPaty kostenlos im App Store oder bei Google Play herunter.',
+  'step2.label':'SCHRITT 02','step2.title':'Profil erstellen','step2.desc':'Erstellen Sie in Sekunden ein Konto und fügen Sie Ihr Haustier hinzu.',
+  'step3.label':'SCHRITT 03','step3.title':'Verfolgung starten','step3.desc':'Verwalten Sie Fütterung, Gesundheit und Impfungen ganz einfach.',
+  'stat1.label':'Unterstützte Tierarten','stat2.label':'Funktionen','stat3.label':'Sprachen','stat4.label':'KI-Assistent',
+  'why.title':'Was macht MyPaty besonders?','why.subtitle':'Entwickelt für jedes Haustier, das Sie haben, unabhängig von der Art — alles in einer App, mit sicheren Daten.',
+  'w1.title':'Für all Ihre Haustiere','w1.desc':'Katzen, Hunde, Vögel, Fische und mehr — unabhängig von der Art, alle unter einem Dach.',
+  'w2.title':'Ihre Daten sind sicher','w2.desc':'Alle Ihre Daten werden verschlüsselt gespeichert und nur mit Personen geteilt, die Sie autorisieren.',
+  'w3.title':'Tierübergreifende KI-Analyse','w3.desc':'Der einzige KI-Assistent, der Muster zwischen allen Haustieren in Ihrem Zuhause erkennen kann.',
+  'w4.title':'Tierarztzugang mit Navigation','w4.desc':'Nicht nur ein Standort — die App führt Sie tatsächlich mit einer Wegbeschreibung dorthin.',
+  'w5.title':'Alles an einem Ort','w5.desc':'Budgetverfolgung, Vermisst-Modus, Dokumententresor — keine separaten Apps nötig.',
+  'w6.title':'Einfaches Teilen mit dem Tierarzt','w6.desc':'Laden Sie den KI-Zusammenfassungsbericht als PDF herunter und teilen Sie ihn sofort.',
+  'faq.eyebrow':'Häufig gestellte Fragen','faq.title':'Was Sie wissen möchten','faq.subtitle':'Hier finden Sie Antworten auf Ihre Fragen.',
+  'q1.q':'Ist MyPaty kostenlos?','q1.a':'Ja! Die Kernfunktionen von MyPaty sind völlig kostenlos. Gesundheitsakten, Impfverfolgung und Erinnerungen sind kostenlos nutzbar. Für mehrere Haustiere und erweiterte KI-Funktionen ist ein Abonnement geplant.',
+  'q2.q':'Wie viele Haustiere kann ich hinzufügen?','q2.a':'Sie können mehrere Haustierprofile erstellen und für jedes eine eigene Gesundheitsakte führen.',
+  'q3.q':'Was ist der KI-Assistent?','q3.a':'Der KI-Assistent ist eine Funktion zur Gesundheitsberatung basierend auf Ihren eigenen Daten. Hinweis: Er ersetzt keine echte tierärztliche Untersuchung und dient nur zu Informationszwecken.',
+  'q4.q':'Sind meine Daten sicher?','q4.a':'Auf jeden Fall! Alle Ihre Daten werden verschlüsselt gespeichert und niemals an Dritte weitergegeben.',
+  'q5.q':'Auf welchen Geräten kann ich es nutzen?','q5.a':'MyPaty wird für iOS und Android verfügbar sein, herunterladbar im App Store und bei Google Play.',
+  'q6.q':'Ist die Funktion Pfoten-Freunde sicher?','q6.a':'Ihr Profil wird nur geteilt, wenn Sie es sichtbar machen, und Ihr genauer Standort wird niemals angezeigt — nur ein ungefähres Gebiet. Nachrichten öffnen sich erst bei gegenseitigem Interesse, und eine Melde-/Blockieroption ist jederzeit verfügbar.',
+  'q7.q':'Wann startet die App?','q7.a':'MyPaty befindet sich derzeit in der Entwicklung und wird bald im App Store und bei Google Play verfügbar sein.',
+  'faq.contact':'Noch eine Frage?','faq.contactLink':'Kontaktieren Sie uns',
+  'cta.title':'Bereit für die Gesundheit Ihres Haustiers?','cta.subtitle':'Laden Sie MyPaty bald herunter und erleichtern Sie die Pflege Ihres Haustiers mit KI-Unterstützung.',
+  'cta.benefit1':'✓ Kostenlose Nutzung','cta.benefit2':'✓ Sichere Daten','cta.benefit3':'✓ Intelligente Erinnerungen',
+  'footer.tagline':'Der einfachste Weg, die Gesundheit Ihres Haustiers zu verfolgen.','footer.product':'Produkt','footer.legal':'Rechtliches','footer.privacy':'Datenschutzerklärung','footer.terms':'Allgemeine Geschäftsbedingungen','footer.kvkk':'Datenschutzhinweis','footer.gdpr':'DSGVO','footer.copyright':'© 2026 MyPaty. Alle Rechte vorbehalten.','footer.tagline2':'Das Tagebuch Ihres Haustiers'
+},
+ar: {
+  'nav.features':'المزايا','nav.how':'كيف يعمل','nav.why':'لماذا MyPaty','nav.faq':'الأسئلة الشائعة','nav.cta':'تحميل التطبيق',
+  'common.download':'تحميل','common.soon':'قريباً',
+  'hero.eyebrow':'🐾 متابعة الحيوانات الأليفة بالذكاء الاصطناعي','hero.line1':'يوميات حيوانك الأليف','hero.line2':'الآن في جيبك',
+  'hero.sub':'تتبّع التغذية والنوم والصحة والنمو، تذكيرات التطعيم، دليل للعثور على أقرب طبيب بيطري مع الملاحة، ونصائح رعاية مدعومة بالذكاء الاصطناعي — كل ذلك في تطبيق واحد.',
+  'phone.greeting':'صباح الخير 👋<br>مرحباً بعودتك!','phone.vaccineTitle':'اكتمل التطعيم','phone.vaccineDesc':'تم إعطاء لقاح داء الكلب','phone.apptTitle':'موعد الطبيب البيطري','phone.apptDesc':'غداً الساعة 2:00 مساءً','phone.aiTitle':'💬 المساعد الذكي','phone.aiDesc':'احصل على إجابات فورية حول صحة حيوانك الأليف','phone.aiCta':'ابدأ المحادثة ←','phone.todayEvents':'أحداث اليوم','phone.reminderTitle':'تذكير التطعيم','phone.reminderDesc':'بونجوك · 2:00 مساءً',
+  'features.title':'جيل جديد من رعاية الحيوانات الأليفة','features.subtitle':'مع MyPaty، لم تكن متابعة حياة صديقك الأليف أسهل من أي وقت مضى.',
+  'f1.title':'دعم أنواع متعددة','f1.desc':'أنشئ ملفاً لحيوانك الأليف، مهما كان نوعه.','f1.li1':'القطط والكلاب','f1.li2':'الطيور والأسماك','f1.li3':'القوارض والمزيد',
+  'f2.title':'السجلات الصحية','f2.desc':'احتفظ بكامل التاريخ الطبي لحيوانك في مكان واحد.','f2.li1':'تتبع الوزن والنمو','f2.li2':'التاريخ الطبي','f2.li3':'التغذية والنوم',
+  'f3.title':'متابعة التطعيمات','f3.desc':'أدر جدول التطعيمات بسهولة مع تذكيرات تلقائية.','f3.li1':'دفتر تطعيم رقمي','f3.li2':'تذكيرات','f3.li3':'سجلات الطبيب البيطري',
+  'f4.title':'المساعد الذكي','f4.desc':'احصل على استشارة صحية مخصصة بناءً على سجلاتك.','f4.li1':'محادثة ذكية','f4.li2':'تحليل مشترك بين الحيوانات','f4.li3':'دعم على مدار الساعة',
+  'f5.title':'دليل الأطباء البيطريين','f5.desc':'صل إلى أقرب عيادة بيطرية بخطوات ملاحة واضحة.','f5.li1':'يعمل حول العالم','f5.li2':'اتجاهات الطريق','f5.li3':'وضع الطوارئ',
+  'f6.title':'وضع الحيوان المفقود','f6.desc':'احصل على مساعدة سريعة بهوية رقمية برمز QR.','f6.li1':'هوية رقمية','f6.li2':'آخر موقع شوهد فيه','f6.li3':'إعلان قابل للمشاركة',
+  'f7.title':'متابعة الميزانية','f7.desc':'تتبع نفقات حيوانك الأليف حسب الفئة.','f7.li1':'تتبع حسب الفئة','f7.li2':'ملخص شهري','f7.li3':'دعم عدة حيوانات',
+  'f8.title':'تصدير تقارير PDF','f8.desc':'شارك الملخص الذي يعده الذكاء الاصطناعي مع طبيبك البيطري بسهولة.','f8.li1':'تحميل بنقرة واحدة','f8.li2':'مشاركة مع الطبيب','f8.li3':'خزانة المستندات',
+  'f9.title':'المشاركة العائلية','f9.desc':'أدر ملفات حيواناتك الأليفة مع شريكك أو عائلتك.','f9.li1':'عدة مستخدمين','f9.li2':'تقويم مشترك','f9.li3':'إشعارات مشتركة',
+  'f10.title':'أصدقاء الكف','f10.desc':'تعرّف على أصحاب الحيوانات القريبين منك أو ابحث عن شريك تزاوج.','f10.li1':'رفيق نزهة/لعب','f10.li2':'تزاوج','f10.li3':'مراسلة آمنة',
+  'how.eyebrow':'بداية سهلة','how.title':'كيف يعمل؟','how.subtitle':'ابدأ في إدارة صحة حيوانك الأليف بثلاث خطوات بسيطة.',
+  'step1.label':'الخطوة 01','step1.title':'حمّل التطبيق','step1.desc':'حمّل MyPaty مجاناً من App Store أو Google Play.',
+  'step2.label':'الخطوة 02','step2.title':'أنشئ ملفك الشخصي','step2.desc':'أنشئ حساباً وأضف حيوانك الأليف خلال ثوانٍ.',
+  'step3.label':'الخطوة 03','step3.title':'ابدأ المتابعة','step3.desc':'أدر سجلات التغذية والصحة والتطعيمات بسهولة.',
+  'stat1.label':'أنواع مدعومة','stat2.label':'ميزة','stat3.label':'لغة مدعومة','stat4.label':'مساعد ذكي',
+  'why.title':'ما الذي يميز MyPaty؟','why.subtitle':'مصمم لكل حيوان أليف تملكه، أياً كان نوعه — كل ذلك في تطبيق واحد، وبياناتك في أمان.',
+  'w1.title':'لكل حيواناتك الأليفة','w1.desc':'قطط، كلاب، طيور، أسماك والمزيد — أياً كان النوع، جميعها تحت سقف واحد.',
+  'w2.title':'بياناتك في أمان','w2.desc':'تُخزَّن جميع سجلاتك بشكل مشفّر ولا تُشارَك إلا مع من تسمح لهم.',
+  'w3.title':'تحليل ذكي مشترك بين الحيوانات','w3.desc':'المساعد الذكي الوحيد القادر على اكتشاف الأنماط بين جميع الحيوانات في منزلك.',
+  'w4.title':'وصول للطبيب البيطري بالملاحة','w4.desc':'ليس مجرد موقع على الخريطة — بل يوصلك فعلياً هناك بخطوات الطريق.',
+  'w5.title':'كل شيء في مكان واحد','w5.desc':'متابعة الميزانية، وضع الحيوان المفقود، خزانة المستندات — دون الحاجة لتطبيقات منفصلة.',
+  'w6.title':'مشاركة سهلة مع الطبيب البيطري','w6.desc':'حمّل ملخص الذكاء الاصطناعي بصيغة PDF وشاركه فوراً.',
+  'faq.eyebrow':'الأسئلة الشائعة','faq.title':'ما يهمك معرفته','faq.subtitle':'ستجد هنا إجابات عن الأسئلة التي تدور في ذهنك.',
+  'q1.q':'هل MyPaty مجاني؟','q1.a':'نعم! المزايا الأساسية لـ MyPaty مجانية بالكامل. السجلات الصحية ومتابعة التطعيمات والتذكيرات متاحة مجاناً. يُخطط لاشتراك مقابل ميزات تعدد الحيوانات والذكاء الاصطناعي المتقدم.',
+  'q2.q':'كم عدد الحيوانات التي يمكنني إضافتها؟','q2.a':'يمكنك إنشاء عدة ملفات لحيوانات أليفة والاحتفاظ بسجلات صحية منفصلة لكل منها.',
+  'q3.q':'ما هو المساعد الذكي؟','q3.a':'المساعد الذكي هو ميزة استشارة صحية مبنية على سجلاتك الخاصة. ملاحظة: لا يغني عن فحص بيطري حقيقي وهو لأغراض إعلامية فقط.',
+  'q4.q':'هل بياناتي آمنة؟','q4.a':'بالتأكيد! تُخزَّن جميع بياناتك بشكل مشفّر ولا تُشارَك أبداً مع أطراف ثالثة.',
+  'q5.q':'على أي أجهزة يمكنني استخدامه؟','q5.a':'سيكون MyPaty متاحاً على iOS وAndroid، ويمكن تحميله من App Store وGoogle Play.',
+  'q6.q':'هل ميزة أصدقاء الكف آمنة؟','q6.a':'لا تتم مشاركة ملفك الشخصي إلا إذا جعلته مرئياً بنفسك، ولا يُعرض موقعك الدقيق أبداً — فقط منطقة تقريبية. لا تُفتح المراسلة إلا عند وجود اهتمام متبادل، وخيار الإبلاغ/الحظر متاح دائماً.',
+  'q7.q':'متى سيتم الإطلاق؟','q7.a':'MyPaty قيد التطوير حالياً وسيكون متاحاً قريباً على App Store وGoogle Play.',
+  'faq.contact':'لا يزال لديك سؤال؟','faq.contactLink':'تواصل معنا',
+  'cta.title':'هل أنت مستعد لصحة حيوانك الأليف؟','cta.subtitle':'حمّل MyPaty قريباً واجعل رعاية حيوانك أسهل بدعم من الذكاء الاصطناعي.',
+  'cta.benefit1':'✓ استخدام مجاني','cta.benefit2':'✓ بيانات آمنة','cta.benefit3':'✓ تذكيرات ذكية',
+  'footer.tagline':'أسهل طريقة لمتابعة صحة حيوانك الأليف.','footer.product':'المنتج','footer.legal':'قانوني','footer.privacy':'سياسة الخصوصية','footer.terms':'الشروط والأحكام','footer.kvkk':'إشعار حماية البيانات','footer.gdpr':'GDPR','footer.copyright':'© 2026 MyPaty. جميع الحقوق محفوظة.','footer.tagline2':'يوميات حيوانك الأليف'
+},
+fa: {
+  'nav.features':'امکانات','nav.how':'چگونه کار می‌کند','nav.why':'چرا MyPaty','nav.faq':'سوالات متداول','nav.cta':'دانلود اپلیکیشن',
+  'common.download':'دانلود','common.soon':'به‌زودی',
+  'hero.eyebrow':'🐾 پیگیری حیوان خانگی با هوش مصنوعی','hero.line1':'دفتر خاطرات حیوان خانگی شما','hero.line2':'اکنون در جیب شما',
+  'hero.sub':'پیگیری تغذیه، خواب، سلامت و رشد، یادآوری واکسن، یافتن نزدیک‌ترین دامپزشک با مسیریابی و مشاوره مراقبتی مبتنی بر هوش مصنوعی — همه در یک اپلیکیشن.',
+  'phone.greeting':'صبح بخیر 👋<br>خوش برگشتی!','phone.vaccineTitle':'واکسن انجام شد','phone.vaccineDesc':'واکسن هاری تزریق شد','phone.apptTitle':'نوبت دامپزشک','phone.apptDesc':'فردا ساعت ۱۴:۰۰','phone.aiTitle':'💬 دستیار هوش مصنوعی','phone.aiDesc':'پاسخ فوری درباره سلامت حیوان خانگی خود بگیرید','phone.aiCta':'شروع گفتگو ←','phone.todayEvents':'رویدادهای امروز','phone.reminderTitle':'یادآوری واکسن','phone.reminderDesc':'بونجوک · ۱۴:۰۰',
+  'features.title':'نسل جدید مراقبت از حیوانات خانگی','features.subtitle':'با MyPaty، پیگیری زندگی دوست پابه‌پای شما هرگز این‌قدر آسان نبوده است.',
+  'f1.title':'پشتیبانی از چند گونه','f1.desc':'برای حیوان خانگی خود، فارغ از نوع آن، یک پروفایل بسازید.','f1.li1':'گربه و سگ','f1.li2':'پرنده و ماهی','f1.li3':'جونده و بیشتر',
+  'f2.title':'سوابق سلامت','f2.desc':'تمام تاریخچه پزشکی حیوان خانگی خود را در یک جا نگه دارید.','f2.li1':'پیگیری وزن و رشد','f2.li2':'سابقه پزشکی','f2.li3':'تغذیه و خواب',
+  'f3.title':'پیگیری واکسن','f3.desc':'برنامه واکسیناسیون را با یادآوری خودکار به‌راحتی مدیریت کنید.','f3.li1':'دفترچه واکسن دیجیتال','f3.li2':'یادآوری‌ها','f3.li3':'سوابق دامپزشکی',
+  'f4.title':'دستیار هوش مصنوعی','f4.desc':'بر اساس سوابق خودتان، مشاوره سلامت شخصی‌سازی‌شده دریافت کنید.','f4.li1':'گفتگو با هوش مصنوعی','f4.li2':'تحلیل مشترک بین حیوانات','f4.li3':'پشتیبانی ۲۴/۷',
+  'f5.title':'راهنمای دامپزشکان','f5.desc':'با مسیریابی گام‌به‌گام به نزدیک‌ترین کلینیک دامپزشکی برسید.','f5.li1':'در سراسر جهان فعال است','f5.li2':'مسیریابی','f5.li3':'حالت اضطراری',
+  'f6.title':'حالت حیوان گمشده','f6.desc':'با هویت دیجیتال دارای کد QR، کمک سریع دریافت کنید.','f6.li1':'هویت دیجیتال','f6.li2':'آخرین مکان دیده‌شده','f6.li3':'آگهی قابل‌اشتراک‌گذاری',
+  'f7.title':'پیگیری بودجه','f7.desc':'هزینه‌های حیوان خانگی خود را بر اساس دسته‌بندی پیگیری کنید.','f7.li1':'پیگیری بر اساس دسته','f7.li2':'خلاصه ماهانه','f7.li3':'پشتیبانی چند حیوان',
+  'f8.title':'دریافت گزارش PDF','f8.desc':'خلاصه تهیه‌شده توسط هوش مصنوعی را به‌راحتی با دامپزشک خود به اشتراک بگذارید.','f8.li1':'دانلود با یک لمس','f8.li2':'اشتراک با دامپزشک','f8.li3':'صندوق اسناد',
+  'f9.title':'اشتراک خانوادگی','f9.desc':'پروفایل‌های حیوانات خانگی خود را همراه با همسر یا خانواده مدیریت کنید.','f9.li1':'چند کاربر','f9.li2':'تقویم مشترک','f9.li3':'اعلان‌های مشترک',
+  'f10.title':'دوستان پنجه‌ای','f10.desc':'با صاحبان حیوانات خانگی نزدیک آشنا شوید یا جفت مناسبی برای جفت‌گیری پیدا کنید.','f10.li1':'همراه پیاده‌روی/بازی','f10.li2':'جفت‌گیری','f10.li3':'پیام‌رسانی امن',
+  'how.eyebrow':'شروع آسان','how.title':'چگونه کار می‌کند؟','how.subtitle':'در سه مرحله ساده، مدیریت سلامت حیوان خانگی خود را آغاز کنید.',
+  'step1.label':'مرحله ۰۱','step1.title':'اپلیکیشن را دانلود کنید','step1.desc':'MyPaty را به‌صورت رایگان از App Store یا Google Play دانلود کنید.',
+  'step2.label':'مرحله ۰۲','step2.title':'پروفایل خود را بسازید','step2.desc':'در چند ثانیه حساب کاربری بسازید و حیوان خانگی خود را اضافه کنید.',
+  'step3.label':'مرحله ۰۳','step3.title':'پیگیری را شروع کنید','step3.desc':'سوابق تغذیه، سلامت و واکسن را به‌راحتی مدیریت کنید.',
+  'stat1.label':'گونه پشتیبانی‌شده','stat2.label':'امکانات','stat3.label':'زبان','stat4.label':'دستیار هوش مصنوعی',
+  'why.title':'تفاوت MyPaty در چیست؟','why.subtitle':'برای هر حیوان خانگی که دارید، فارغ از گونه آن طراحی شده — همه در یک اپلیکیشن، با داده‌هایی امن.',
+  'w1.title':'برای همه حیوانات خانگی شما','w1.desc':'گربه، سگ، پرنده، ماهی و بیشتر — فارغ از گونه، همه زیر یک سقف.',
+  'w2.title':'داده‌های شما امن است','w2.desc':'تمام سوابق شما به‌صورت رمزگذاری‌شده ذخیره و فقط با افرادی که اجازه دهید به اشتراک گذاشته می‌شود.',
+  'w3.title':'تحلیل هوش مصنوعی بین حیوانات','w3.desc':'تنها دستیار هوش مصنوعی که می‌تواند بین تمام حیوانات خانه شما الگو پیدا کند.',
+  'w4.title':'دسترسی به دامپزشک با مسیریابی','w4.desc':'فقط یک نقطه روی نقشه نیست — واقعاً شما را با مسیر تا آنجا هدایت می‌کند.',
+  'w5.title':'همه‌چیز در یک جا','w5.desc':'پیگیری بودجه، حالت حیوان گمشده، صندوق اسناد — دیگر نیازی به اپلیکیشن‌های جداگانه نیست.',
+  'w6.title':'اشتراک آسان با دامپزشک','w6.desc':'گزارش خلاصه هوش مصنوعی را به‌صورت PDF دانلود کرده و فوراً به اشتراک بگذارید.',
+  'faq.eyebrow':'سوالات متداول','faq.title':'آنچه می‌خواهید بدانید','faq.subtitle':'پاسخ سوالات ذهنی خود را اینجا پیدا کنید.',
+  'q1.q':'آیا MyPaty رایگان است؟','q1.a':'بله! امکانات اصلی MyPaty کاملاً رایگان است. سوابق سلامت، پیگیری واکسن و یادآوری‌ها به‌صورت رایگان در دسترس‌اند. برای چند حیوان و امکانات پیشرفته هوش مصنوعی اشتراک برنامه‌ریزی شده است.',
+  'q2.q':'چند حیوان خانگی می‌توانم اضافه کنم؟','q2.a':'می‌توانید چند پروفایل حیوان خانگی بسازید و برای هرکدام سوابق سلامت جداگانه نگه دارید.',
+  'q3.q':'دستیار هوش مصنوعی چیست؟','q3.a':'دستیار هوش مصنوعی امکانی برای مشاوره سلامت بر اساس سوابق خود شماست. توجه: جایگزین معاینه واقعی دامپزشکی نیست و فقط جنبه اطلاع‌رسانی دارد.',
+  'q4.q':'آیا داده‌های من امن است؟','q4.a':'قطعاً! تمام داده‌های شما به‌صورت رمزگذاری‌شده ذخیره می‌شود و هرگز با اشخاص ثالث به اشتراک گذاشته نمی‌شود.',
+  'q5.q':'روی چه دستگاه‌هایی می‌توانم استفاده کنم؟','q5.a':'MyPaty برای iOS و اندروید در دسترس خواهد بود و از App Store و Google Play قابل دانلود است.',
+  'q6.q':'آیا امکان دوستان پنجه‌ای امن است؟','q6.a':'پروفایل شما فقط زمانی به اشتراک گذاشته می‌شود که خودتان آن را قابل‌مشاهده کنید و موقعیت دقیق شما هرگز نمایش داده نمی‌شود — فقط یک منطقه تقریبی. پیام‌رسانی فقط پس از علاقه متقابل باز می‌شود و گزینه گزارش/مسدودسازی همیشه در دسترس است.',
+  'q7.q':'چه زمانی راه‌اندازی می‌شود؟','q7.a':'MyPaty در حال حاضر در مرحله توسعه است و به‌زودی در App Store و Google Play در دسترس خواهد بود.',
+  'faq.contact':'همچنان سوالی دارید؟','faq.contactLink':'با ما تماس بگیرید',
+  'cta.title':'برای سلامت حیوان خانگی خود آماده‌اید؟','cta.subtitle':'MyPaty را به‌زودی دانلود کنید و مراقبت از حیوان خانگی خود را با پشتیبانی هوش مصنوعی آسان‌تر کنید.',
+  'cta.benefit1':'✓ استفاده رایگان','cta.benefit2':'✓ داده‌های امن','cta.benefit3':'✓ یادآوری‌های هوشمند',
+  'footer.tagline':'آسان‌ترین راه برای پیگیری سلامت حیوان خانگی شما.','footer.product':'محصول','footer.legal':'حقوقی','footer.privacy':'حریم خصوصی','footer.terms':'شرایط و ضوابط','footer.kvkk':'اعلامیه حفاظت از داده','footer.gdpr':'GDPR','footer.copyright':'© ۲۰۲۶ MyPaty. تمامی حقوق محفوظ است.','footer.tagline2':'دفتر خاطرات حیوان خانگی شما'
+}
+};
+
+let currentLang = 'tr';
+
+function buildLangMenu() {
+  const menu = document.getElementById('lang-menu');
+  menu.innerHTML = LANGS.map(l => `<div class="lang-option${l.code===currentLang?' active':''}" data-lang="${l.code}">${l.label} · ${l.name}</div>`).join('');
+  menu.querySelectorAll('.lang-option').forEach(opt => {
+    opt.onclick = () => { setLang(opt.dataset.lang); menu.classList.remove('open'); };
+  });
+}
+
+document.getElementById('lang-btn').onclick = () => {
+  document.getElementById('lang-menu').classList.toggle('open');
+};
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.lang-switch')) document.getElementById('lang-menu').classList.remove('open');
+});
+
+function renderDynamicSections() {
+  document.getElementById('features-grid').innerHTML = FEATURES.map(f => `
+    <div class="feature-card">
+      <div class="icon">${f.icon}</div>
+      <h3 data-i18n="${f.key}.title"></h3>
+      <p data-i18n="${f.key}.desc"></p>
+      <ul><li data-i18n="${f.key}.li1"></li><li data-i18n="${f.key}.li2"></li><li data-i18n="${f.key}.li3"></li></ul>
+    </div>
+  `).join('');
+
+  document.getElementById('steps-grid').innerHTML = [1,2,3].map(n => `
+    <div class="step">
+      <div class="step-label" data-i18n="step${n}.label"></div>
+      <h3 data-i18n="step${n}.title"></h3>
+      <p data-i18n="step${n}.desc"></p>
+    </div>
+  `).join('');
+
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat"><div class="num">8+</div><div class="label" data-i18n="stat1.label"></div></div>
+    <div class="stat"><div class="num">30+</div><div class="label" data-i18n="stat2.label"></div></div>
+    <div class="stat"><div class="num">7</div><div class="label" data-i18n="stat3.label"></div></div>
+    <div class="stat"><div class="num">24/7</div><div class="label" data-i18n="stat4.label"></div></div>
+  `;
+
+  const whyIcons = { w1:'🐾', w2:'🔒', w3:'🧠', w4:'📍', w5:'🏡', w6:'📄' };
+  document.getElementById('why-grid').innerHTML = WHY.map(w => `
+    <div class="why-item">
+      <div class="check">${whyIcons[w]}</div>
+      <div><h4 data-i18n="${w}.title"></h4><p data-i18n="${w}.desc"></p></div>
+    </div>
+  `).join('');
+
+  document.getElementById('faq-list').innerHTML = FAQ.map(q => `
+    <div class="faq-item">
+      <div class="faq-q"><span data-i18n="${q}.q"></span><span class="arrow">⌄</span></div>
+      <div class="faq-a" data-i18n="${q}.a"></div>
+    </div>
+  `).join('');
+  document.querySelectorAll('.faq-q').forEach(qEl => {
+    qEl.onclick = () => qEl.parentElement.classList.toggle('open');
+  });
+}
+
+function applyTranslations() {
+  const dict = T[currentLang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+}
+
+function setLang(code) {
+  currentLang = code;
+  const lang = LANGS.find(l => l.code === code);
+  document.documentElement.lang = code;
+  document.documentElement.dir = lang.dir;
+  document.getElementById('lang-btn-label').textContent = lang.label;
+  applyTranslations();
+  buildLangMenu();
+}
+
+renderDynamicSections();
+buildLangMenu();
+setLang('tr');
+</script>
+
+</body>
+</html>
